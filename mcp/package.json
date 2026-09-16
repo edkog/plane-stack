@@ -1,0 +1,10 @@
+{
+  "name": "plane-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP bridge to a self-hosted Plane (Community Edition).",
+  "dependencies": {
+    "marked": "^14.1.2"
+  }
+}

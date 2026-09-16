@@ -291,25 +291,31 @@ services:
       - admin
       - live
 
-  # + The MCP bridge. Commented out until mcp/ exists in this repo — enable in the same
-  # + commit that adds it, or the stack fails to build.
-  #
-  # plane-mcp:
-  #   build: ./mcp
-  #   restart: unless-stopped
-  #   networks: [plane-internal, mcp-edge]
-  #   environment:
-  #     PLANE_API_URL: "http://api:8000"
-  #     PLANE_WORKSPACE_SLUG: "${PLANE_WORKSPACE_SLUG}"
-  #     PLANE_TOKEN: "${PLANE_API_TOKEN}"
-  #     MCP_AUTH_TOKEN: "${MCP_AUTH_TOKEN}"
-  #     MCP_PRINCIPALS: "${MCP_PRINCIPALS:-}"
-  #     MCP_PORT: "8790"
-  #     MCP_BLOCK_DONE: "true"
-  #     MCP_ALLOW_DELETE: "false"
-  #     MCP_FETCH_ALLOW_HOSTS: "${MCP_FETCH_ALLOW_HOSTS:-}"
-  #   ports:
-  #     - "${MCP_PORT_HOST}:8790"
+  # + The MCP bridge, built from ./mcp in this repo. On mcp-edge rather than sealed,
+  # + because add_link fetches URLs the caller passes it; see README "The bridge's
+  # + egress". It reaches Plane at http://api:8000 over the internal network, so it
+  # + does not depend on the proxy, nginx or DNS.
+  plane-mcp:
+    build: ./mcp
+    restart: unless-stopped
+    networks: [plane-internal, mcp-edge]
+    depends_on:
+      - api
+    environment:
+      PLANE_API_URL: "http://api:8000"
+      PLANE_WORKSPACE_SLUG: "${PLANE_WORKSPACE_SLUG:?the slug in /api/v1/workspaces/<slug>/}"
+      PLANE_TOKEN: "${PLANE_API_TOKEN:?a personal access token from Profile Settings}"
+      MCP_AUTH_TOKEN: "${MCP_AUTH_TOKEN:?generate with openssl rand -hex 32}"
+      MCP_PRINCIPALS: "${MCP_PRINCIPALS:-}"
+      MCP_PORT: "8790"
+      # + Closing a ticket stays a human decision: any completed or cancelled state
+      # + is refused. And since Plane tokens cannot be scoped per route, the
+      # + no-delete rule lives in the bridge — leave this false.
+      MCP_BLOCK_DONE: "true"
+      MCP_ALLOW_DELETE: "false"
+      MCP_FETCH_ALLOW_HOSTS: "${MCP_FETCH_ALLOW_HOSTS:-}"
+    ports:
+      - "${MCP_PORT_HOST:-8790}:8790"
 
 volumes:
   pgdata:

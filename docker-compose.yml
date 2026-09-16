@@ -335,13 +335,19 @@ networks:
   plane-internal:
     driver: bridge
     internal: true          # no gateway: nothing here can reach anything off the host
+    # + Pinned, like the other two. Left unpinned Docker allocates from its default
+    # + 172.16-172.31 pool; on a host that already runs a dozen stacks that pool is
+    # + nearly gone, and taking the last /16 makes the NEXT stack fail to deploy.
+    ipam:
+      config:
+        - subnet: ${PLANE_INTERNAL_SUBNET:-192.168.242.0/24}
   plane-edge:
     driver: bridge
     ipam:
       config:
-        - subnet: ${PLANE_EDGE_SUBNET:-172.31.240.0/24}
+        - subnet: ${PLANE_EDGE_SUBNET:-192.168.240.0/24}
   mcp-edge:
     driver: bridge
     ipam:
       config:
-        - subnet: ${MCP_EDGE_SUBNET:-172.31.241.0/24}
+        - subnet: ${MCP_EDGE_SUBNET:-192.168.241.0/24}

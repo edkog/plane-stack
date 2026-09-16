@@ -43,14 +43,19 @@ x-aws-s3-env: &aws-s3-env
 x-proxy-env: &proxy-env
   APP_DOMAIN: ${APP_DOMAIN:-localhost}
   FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
-  # + CERT_* are deliberately blank: TLS terminates at nginx on the other VM, so Caddy
-  # + must never attempt ACME. A value here would be an outbound call to Let's Encrypt.
-  CERT_EMAIL: ${CERT_EMAIL:-}
-  CERT_ACME_CA: ${CERT_ACME_CA:-}
-  CERT_ACME_DNS: ${CERT_ACME_DNS:-}
+  # + The CERT_* vars are deliberately NOT passed. The proxy image's Caddyfile reads
+  # + "acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory}", and
+  # + Caddy applies that default only when the variable is UNSET. Passing an empty
+  # + string leaves a bare "acme_ca" with no argument: Caddyfile parse error, crash
+  # + loop, no proxy. Setting them blank to suppress ACME does not work.
+  # + What actually suppresses ACME is SITE_ADDRESS below.
   LISTEN_HTTP_PORT: ${LISTEN_HTTP_PORT:-80}
   LISTEN_HTTPS_PORT: ${LISTEN_HTTPS_PORT:-443}
   BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+  # + ":80" is a port with no hostname, so Caddy serves plain HTTP and never requests
+  # + a certificate. TLS terminates at nginx on the other VM. Do not put a hostname
+  # + here: that turns on automatic HTTPS and Caddy will try to reach Let's Encrypt.
+  # + The sealed plane-edge network is the backstop if it ever does.
   SITE_ADDRESS: ${SITE_ADDRESS:-:80}
 
 x-mq-env: &mq-env

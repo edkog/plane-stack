@@ -316,7 +316,11 @@ services:
       # + Closing a ticket stays a human decision: any completed or cancelled state
       # + is refused. And since Plane tokens cannot be scoped per route, the
       # + no-delete rule lives in the bridge — leave this false.
-      MCP_BLOCK_DONE: "true"
+      # + Was hardcoded "true". Made overridable 2026-09-17: Eden's call is that
+      # + Claude should close tickets when told to, since the instruction carries
+      # + the decision. Set to "true" to restore the refusal on set_state and
+      # + update_work_item. Note it never covered create_work_item (see B-163).
+      MCP_BLOCK_DONE: "${MCP_BLOCK_DONE:-true}"
       MCP_ALLOW_DELETE: "false"
       MCP_FETCH_ALLOW_HOSTS: "${MCP_FETCH_ALLOW_HOSTS:-}"
     ports:

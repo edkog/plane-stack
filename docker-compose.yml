@@ -324,6 +324,7 @@ services:
       # Placeholders: the /http OAuth route is unused — /http/api-key is the one.
       PLANE_OAUTH_PROVIDER_CLIENT_ID: "unused"
       PLANE_OAUTH_PROVIDER_CLIENT_SECRET: "unused"
+      PLANE_OAUTH_PROVIDER_BASE_URL: "https://mcpp.anythingamerica.com"
       PLANE_BASE_URL: "https://plane.anythingamerica.com"
       PLANE_INTERNAL_BASE_URL: "http://api:8000"
       PLANE_WORKSPACE_SLUG: "${PLANE_WORKSPACE_SLUG:?the slug in /api/v1/workspaces/<slug>/}"

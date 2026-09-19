@@ -12,8 +12,8 @@
 #   plane-internal  internal: true — no route off the host. Every service sits here.
 #   plane-edge      the ONLY way in: the proxy, reached by nginx on the other VM.
 #                   Fixed subnet so the firewall rule that denies its egress is stable.
-#   mcp-edge        the MCP bridge. Deliberately NOT sealed: attach_from_url downloads
-#                   files on request. Separate subnet so it is firewalled separately.
+#   mcp-edge        the official MCP server. Needs no egress of its own; seal it
+#                   with a DOCKER-USER rule too (see README "Its egress").
 
 x-db-env: &db-env
   PGHOST: ${PGHOST:-plane-db}
@@ -324,8 +324,8 @@ services:
       # Placeholders: the /http OAuth route is unused — /http/api-key is the one.
       PLANE_OAUTH_PROVIDER_CLIENT_ID: "unused"
       PLANE_OAUTH_PROVIDER_CLIENT_SECRET: "unused"
-      PLANE_OAUTH_PROVIDER_BASE_URL: "https://mcpp.anythingamerica.com"
-      PLANE_BASE_URL: "https://plane.anythingamerica.com"
+      PLANE_OAUTH_PROVIDER_BASE_URL: "${MCP_PUBLIC_URL:?public base URL of the MCP server, e.g. https://mcp.example.com}"
+      PLANE_BASE_URL: "${WEB_URL:?full URL of the Plane web UI}"
       PLANE_INTERNAL_BASE_URL: "http://api:8000"
       PLANE_WORKSPACE_SLUG: "${PLANE_WORKSPACE_SLUG:?the slug in /api/v1/workspaces/<slug>/}"
       LOG_PAYLOADS: "false"

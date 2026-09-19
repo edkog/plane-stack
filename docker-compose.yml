@@ -319,6 +319,11 @@ services:
       #
       # LOG_PAYLOADS defaults to true upstream, which writes request payloads
       # (ticket contents) into container logs. Off deliberately.
+      # The OAuth app is constructed unconditionally at startup (__main__.py:148)
+      # even in PAT-only mode, and PlaneOAuthProvider hard-requires these two.
+      # Placeholders: the /http OAuth route is unused — /http/api-key is the one.
+      PLANE_OAUTH_PROVIDER_CLIENT_ID: "unused"
+      PLANE_OAUTH_PROVIDER_CLIENT_SECRET: "unused"
       PLANE_BASE_URL: "https://plane.anythingamerica.com"
       PLANE_INTERNAL_BASE_URL: "http://api:8000"
       PLANE_WORKSPACE_SLUG: "${PLANE_WORKSPACE_SLUG:?the slug in /api/v1/workspaces/<slug>/}"
